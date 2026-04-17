@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-04-14",
+    "description": "Main configuration file for Millionaire 2026 Trading System"
+  },
+  "trading": {
+    "initial_capital": 100000,
+    "maximum_daily_trades": 20,
+    "minimum_trade_size": 10,
+    "maximum_position_size_pct": 30,
+    "trading_hours": "24/7",
+    "supported_assets": ["BTC", "ETH"],
+    "preferred_exchange": "coinbase"
+  },
+  "strategies": {
+    "active_strategies": ["momentum", "mean_reversion", "arbitrage"],
+    "strategy_weights": {
+      "momentum": 0.35,
+      "mean_reversion": 0.35,
+      "arbitrage": 0.30
+    },
+    "rebalance_frequency": "daily",
+    "min_confidence_threshold": 0.65
+  },
+  "risk_management": {
+    "maximum_daily_loss_pct": 5.0,
+    "maximum_position_loss_pct": 2.0,
+    "var_confidence_level": 0.95,
+    "stress_testing": true,
+    "position_sizing_method": "kelly_criterion"
+  },
+  "market_data": {
+    "data_source": "coingecko",
+    "update_frequency_seconds": 3600,
+    "lookback_days": 365,
+    "minimum_volume_usd": 1000000
+  },
+  "api_integration": {
+    "exchange": "coinbase",
+    "mcf_server": "http://localhost:8000",
+    "request_timeout_seconds": 30,
+    "retry_attempts": 3
+  },
+  "backtesting": {
+    "enabled": true,
+    "scenarios": ["A", "B", "C", "D", "E"],
+    "initial_capital": 100000,
+    "commission_pct": 0.1,
+    "slippage_pct": 0.05
+  },
+  "reporting": {
+    "report_format": "detailed",
+    "report_frequency": "daily",
+    "log_level": "INFO",
+    "save_reports": true,
+    "report_directory": "./reports"
+  }
+}

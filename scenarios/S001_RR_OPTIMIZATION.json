@@ -1,0 +1,411 @@
+{
+  "metadata": {
+    "total_scenarios": 8,
+    "version": "3.0",
+    "phase": "S001 Risk/Reward Optimization",
+    "date": "2026-04-16",
+    "note": "Test 4 SL/TP combinations on S001 + S001_E to find profitable R:R"
+  },
+  "scenarios": [
+    {
+      "id": "S001_RR1",
+      "name": "S001 - SL=ATR*1.0, TP=ATR*3.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 1.0,
+      "tp_multiplier": 3.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 3.0
+      }
+    },
+    {
+      "id": "S001_RR2",
+      "name": "S001 - SL=ATR*1.0, TP=ATR*4.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 1.0,
+      "tp_multiplier": 4.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 4.0
+      }
+    },
+    {
+      "id": "S001_RR3",
+      "name": "S001 - SL=ATR*0.8, TP=ATR*3.5",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 0.8,
+      "tp_multiplier": 3.5,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 3.5
+      }
+    },
+    {
+      "id": "S001_RR4",
+      "name": "S001 - SL=ATR*1.2, TP=ATR*4.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 1.2,
+      "tp_multiplier": 4.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 4.0
+      }
+    },
+    {
+      "id": "S001E_RR1",
+      "name": "S001_E - SL=ATR*1.0, TP=ATR*3.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 1.0,
+      "tp_multiplier": 3.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 2.0,
+        "expected_win_rate": 0.46,
+        "expected_rr": 3.0
+      }
+    },
+    {
+      "id": "S001E_RR2",
+      "name": "S001_E - SL=ATR*1.0, TP=ATR*4.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 1.0,
+      "tp_multiplier": 4.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 2.0,
+        "expected_win_rate": 0.46,
+        "expected_rr": 4.0
+      }
+    },
+    {
+      "id": "S001E_RR3",
+      "name": "S001_E - SL=ATR*0.8, TP=ATR*3.5",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 0.8,
+      "tp_multiplier": 3.5,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 2.0,
+        "expected_win_rate": 0.46,
+        "expected_rr": 3.5
+      }
+    },
+    {
+      "id": "S001E_RR4",
+      "name": "S001_E - SL=ATR*1.2, TP=ATR*4.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "sl_multiplier": 1.2,
+      "tp_multiplier": 4.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 2.0,
+        "expected_win_rate": 0.46,
+        "expected_rr": 4.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "total_scenarios": 1,
+    "version": "3.0",
+    "phase": "Single Variant Test"
+  },
+  "scenarios": [
+    {
+      "id": "S001_RR1",
+      "name": "S001 - SL=ATR*1.0, TP=ATR*3.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": [
+        "3m",
+        "1h"
+      ],
+      "sl_multiplier": 1.0,
+      "tp_multiplier": 3.0,
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 3.0
+      }
+    }
+  ]
+}

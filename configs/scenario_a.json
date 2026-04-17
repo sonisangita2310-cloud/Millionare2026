@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-04-14",
+    "description": "Scenario A: Benchmark / Volume Throttle Configuration"
+  },
+  "scenario": {
+    "name": "Scenario A - Benchmark / Volume Throttle",
+    "category": "A",
+    "description": "High-conviction Bitcoin trade scenario with volume throttling and benchmark comparison",
+    "assets": [
+      {
+        "symbol": "BTC",
+        "exchange": "coinbase",
+        "target_allocation": 0.4
+      },
+      {
+        "symbol": "ETH",
+        "exchange": "coinbase",
+        "target_allocation": 0.3
+      }
+    ],
+    "strategies": {
+      "momentum": {
+        "enabled": true,
+        "weight": 0.4,
+        "parameters": {
+          "lookback_period": 20,
+          "rsi_threshold": 70,
+          "minimum_volume": 1000000
+        }
+      },
+      "mean_reversion": {
+        "enabled": true,
+        "weight": 0.3,
+        "parameters": {
+          "lookback_period": 20,
+          "z_score_threshold": 2.0
+        }
+      },
+      "arbitrage": {
+        "enabled": true,
+        "weight": 0.3,
+        "parameters": {
+          "min_spread_pct": 0.5
+        }
+      }
+    },
+    "constraints": {
+      "max_daily_trades": 20,
+      "min_volume_threshold": 1000000,
+      "max_position_size": 0.3,
+      "stop_loss_pct": 2.0,
+      "take_profit_pct": 5.0
+    },
+    "risk_management": {
+      "max_daily_loss_pct": 5.0,
+      "max_position_loss_pct": 2.0,
+      "var_confidence": 0.95,
+      "stress_test_scenarios": [-30, -15, -5, 5, 15, 30]
+    }
+  }
+}

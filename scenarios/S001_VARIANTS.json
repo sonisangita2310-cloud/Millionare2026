@@ -1,0 +1,649 @@
+{
+  "metadata": {
+    "total_scenarios": 10,
+    "version": "3.0",
+    "phase": "S001 Variants - Core Edge Testing + R:R Optimization",
+    "date": "2026-04-16",
+    "note": "6 base variants + 4 R:R optimization variants to find profitable configuration"
+  },
+  "scenarios": [
+    {
+      "id": "S001",
+      "name": "200 EMA Golden Cross Scalp (Original)",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 1.5)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 3.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 2.0
+      }
+    },
+    {
+      "id": "S001_A",
+      "name": "200 EMA Golden Cross - Tighter Entry",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.002,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.5)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.50,
+        "expected_rr": 2.2
+      }
+    },
+    {
+      "id": "S001_B",
+      "name": "200 EMA Golden Cross - Stricter RSI Filter",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 55
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 65
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 1.5)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 3.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.55,
+        "expected_rr": 1.8
+      }
+    },
+    {
+      "id": "S001_C",
+      "name": "200 EMA Golden Cross - Wider Entry, Tight SL",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.003,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 1.2)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 2.5)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.0,
+        "expected_win_rate": 0.52,
+        "expected_rr": 1.5
+      }
+    },
+    {
+      "id": "S001_D",
+      "name": "200 EMA Golden Cross - EMA Slope Confirmation",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "EMA_200_3m",
+            "original_value": "ema_val_prev_candle",
+            "comparison": "<",
+            "current_value": "current_ema_200_3m",
+            "description": "EMA trending up (current > previous)"
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e4",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          },
+          {
+            "id": "e5",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.52,
+        "expected_rr": 2.3
+      }
+    },
+    {
+      "id": "S001_E",
+      "name": "200 EMA Golden Cross - Aggressive Version",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 1.2)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 2.5)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 2.0,
+        "expected_win_rate": 0.46,
+        "expected_rr": 1.4
+      }
+    },
+    {
+      "id": "S001_RR1",
+      "name": "S001_E - R:R Opt: SL=ATR*1.0, TP=ATR*3.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 1.5)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 3.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.46,
+        "expected_rr": 3.0
+      }
+    },
+    {
+      "id": "S001_RR2",
+      "name": "S001_E - R:R Opt: SL=ATR*1.0, TP=ATR*4.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.46,
+        "expected_rr": 4.0
+      }
+    },
+    {
+      "id": "S001_RR3",
+      "name": "S001_E - R:R Opt: SL=ATR*0.8, TP=ATR*3.5",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 0.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 1.75)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 3.5)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 3.5
+      }
+    },
+    {
+      "id": "S001_RR4",
+      "name": "S001_E - R:R Opt: SL=ATR*1.2, TP=ATR*4.0",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.0005,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 45
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 75
+          },
+          {
+            "id": "e4",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.46,
+        "expected_rr": 4.0
+      }
+    }
+  ]
+}

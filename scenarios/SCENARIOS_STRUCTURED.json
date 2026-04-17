@@ -1,0 +1,1953 @@
+{
+  "metadata": {
+    "total_scenarios": 32,
+    "version": "1.0",
+    "phase": "Pre-Backtest Normalization",
+    "date": "2026-04-14",
+    "categories": ["A", "B", "C", "D", "E", "G"],
+    "removed_count": 18,
+    "reason": "Redundancy elimination, session-dependency, complexity"
+  },
+  "scenarios": [
+    {
+      "id": "S001",
+      "name": "200 EMA Golden Cross Scalp",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": ">",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001,
+            "logic": "AND"
+          },
+          {
+            "id": "e2",
+            "indicator": "candle_body_ratio",
+            "timeframe": "3m",
+            "comparison": ">",
+            "value": 0.6,
+            "definition": "(close - open) / (high - low) > 0.6"
+          },
+          {
+            "id": "e3",
+            "indicator": "price_1h",
+            "comparison": ">",
+            "reference": "EMA_200_1h",
+            "buffer_pct": 0.0
+          },
+          {
+            "id": "e4",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 50
+          },
+          {
+            "id": "e5",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 70
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.8)",
+        "explanation": "1.8x ATR below entry on 1h timeframe"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss)",
+          "type": "breakeven_move",
+          "label": "TP1",
+          "action": "move_to_breakeven"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2",
+          "type": "full_target",
+          "label": "TP2",
+          "action": "partial_close_50pct"
+        }
+      ],
+      "trailing_stop": {
+        "trigger": "TP1_hit",
+        "lock_price": "entry_price",
+        "trail_formula": "ATR_14_1h * 1.2",
+        "dynamic": true
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 2.0,
+        "max_dd_acceptable": 0.08,
+        "trades_per_month": 12
+      },
+      "exit_conditions": [
+        {
+          "indicator": "RSI_14",
+          "timeframe": "1h",
+          "comparison": ">",
+          "value": 80,
+          "action": "close_all"
+        },
+        {
+          "indicator": "price",
+          "timeframe": "1h",
+          "comparison": "<",
+          "reference": "EMA_21_1h",
+          "action": "close_all"
+        }
+      ],
+      "session_filter": "ALL",
+      "asset_pairs": ["BTC-USD", "ETH-USD"],
+      "notes": "Pure EMA trend following. Avoid in choppy/ranging markets. Best in confirmed uptrends."
+    },
+    {
+      "id": "S002",
+      "name": "EMA Stack Pullback Re-entry",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation_pullback",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "consolidated_from": ["S006", "S007", "S009"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price_pullback",
+            "definition": "Price retraces to 21 EMA within 1-3 candles",
+            "pullback_range": [-1, 0],
+            "pullback_timeframe": "3"
+          },
+          {
+            "id": "e2",
+            "indicator": "candle_bullish",
+            "timeframe": "1h",
+            "comparison": ">",
+            "definition": "Close > Open AND (Close - Open) / (High - Low) > 0.6"
+          },
+          {
+            "id": "e3",
+            "indicator": "EMA_stack",
+            "timeframe": "4h",
+            "definition": "21 EMA > 50 EMA > 200 EMA within 2% spread",
+            "max_spread_pct": 2.0
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_spike",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": "SMA_volume_20 * 1.2"
+          }
+        ],
+        "confirmation": "All conditions must be true"
+      },
+      "stop_loss": {
+        "formula": "EMA_21_1h - (ATR_14_1h * 2.0)",
+        "explanation": "2.0x ATR below 21 EMA"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0",
+          "label": "TP1"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0",
+          "label": "TP2"
+        }
+      ],
+      "trailing_stop": {
+        "trigger": "TP1_hit",
+        "trail_formula": "ATR_14_1h * 1.5"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.50,
+        "expected_rr": 2.0,
+        "max_dd_acceptable": 0.08,
+        "trades_per_month": 8
+      },
+      "exit_conditions": [
+        {
+          "indicator": "EMA_stack_break",
+          "definition": "21 EMA < 50 EMA on 4h"
+        },
+        {
+          "indicator": "price",
+          "reference": "EMA_50_1h",
+          "comparison": "<"
+        }
+      ],
+      "session_filter": "ALL",
+      "notes": "High-quality pullback in confirmed uptrend. Requires EMA alignment on 4h."
+    },
+    {
+      "id": "S004",
+      "name": "200 EMA Bear Cross Short",
+      "category": "A",
+      "type": "SHORT",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "3m",
+      "timeframes": ["3m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "price",
+            "comparison": "<",
+            "reference": "EMA_200_3m",
+            "buffer_pct": 0.001
+          },
+          {
+            "id": "e2",
+            "indicator": "candle_body_ratio",
+            "timeframe": "3m",
+            "comparison": ">",
+            "value": 0.6
+          },
+          {
+            "id": "e3",
+            "indicator": "price_1h",
+            "comparison": "<",
+            "reference": "EMA_200_1h"
+          },
+          {
+            "id": "e4",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": "<",
+            "value": 50
+          },
+          {
+            "id": "e5",
+            "indicator": "RSI_14",
+            "timeframe": "1h",
+            "comparison": ">",
+            "value": 30
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 2.0,
+        "trades_per_month": 12
+      },
+      "session_filter": "ALL",
+      "notes": "Mirror of S001. SHORT-biased trend continuation."
+    },
+    {
+      "id": "S008",
+      "name": "EMA Fan Short Collapse",
+      "category": "A",
+      "type": "SHORT",
+      "edge_type": "trend_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "EMA_fan",
+            "timeframe": "4h",
+            "definition": "21 < 50 < 200 EMA (bearish stack)"
+          },
+          {
+            "id": "e2",
+            "indicator": "downtrend",
+            "definition": "3+ consecutive lower closes on 1h",
+            "candle_count": 3
+          },
+          {
+            "id": "e3",
+            "indicator": "candle_bearish_engulfing",
+            "timeframe": "1h",
+            "definition": "Close < Open, Body > 60%"
+          },
+          {
+            "id": "e4",
+            "indicator": "ADX_14",
+            "timeframe": "4h",
+            "comparison": ">",
+            "value": 22
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.50,
+        "expected_rr": 2.0,
+        "trades_per_month": 8
+      },
+      "session_filter": "ALL",
+      "notes": "Strong downtrend with EMA alignment. Institutional-grade short setup."
+    },
+    {
+      "id": "S011",
+      "name": "Range Breakout",
+      "category": "B",
+      "type": "LONG",
+      "edge_type": "breakout_expansion",
+      "timeframe_primary": "5m",
+      "timeframes": ["5m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "range_high",
+            "definition": "MAX(close) of last 20 candles (5m)",
+            "lookback": 20,
+            "timeframe": "5m"
+          },
+          {
+            "id": "e2",
+            "indicator": "breakout",
+            "definition": "Current candle close > range_high + 0.1%",
+            "buffer_pct": 0.001
+          },
+          {
+            "id": "e3",
+            "indicator": "volume_spike",
+            "timeframe": "5m",
+            "comparison": ">",
+            "value": "SMA_volume_20 * 1.5"
+          },
+          {
+            "id": "e4",
+            "indicator": "RSI_14",
+            "timeframe": "5m",
+            "comparison": ">",
+            "value": 50
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "range_high - (ATR_14_5m * 1.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.52,
+        "expected_rr": 1.8,
+        "trades_per_month": 15
+      },
+      "session_filter": "ALL",
+      "notes": "Classic range extension with volume confirmation. High-frequency setup."
+    },
+    {
+      "id": "S012",
+      "name": "4H Coil Breakout",
+      "category": "B",
+      "type": "LONG_or_SHORT",
+      "edge_type": "volatility_compression_expansion",
+      "timeframe_primary": "4h",
+      "timeframes": ["4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "ATR_low",
+            "definition": "ATR_14_4h at 52-week low",
+            "comparison": "<",
+            "reference": "ATR_avg_90d * 0.65"
+          },
+          {
+            "id": "e2",
+            "indicator": "ADX_rising",
+            "timeframe": "4h",
+            "definition": "ADX_14 > ADX_14[1]"
+          },
+          {
+            "id": "e3",
+            "indicator": "bollinger_squeeze",
+            "timeframe": "4h",
+            "definition": "(BB_upper - BB_lower) / price < 0.008"
+          },
+          {
+            "id": "e4",
+            "indicator": "breakout_candle",
+            "definition": "Close beyond Bollinger Band + volume > 1.5x avg"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "swing_low - (ATR_14_4h * 2.2)",
+        "note": "Place below last swing low"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.56,
+        "expected_rr": 2.2,
+        "trades_per_month": 4,
+        "max_dd_acceptable": 0.06
+      },
+      "session_filter": "ALL",
+      "notes": "Institutional squeeze breakout. Lower frequency but HIGH edge. Trend direction ambiguous at entry."
+    },
+    {
+      "id": "S014",
+      "name": "Wedge Breakout",
+      "category": "B",
+      "type": "LONG_or_SHORT",
+      "edge_type": "structure_breakout",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "wedge_structure",
+            "definition": "2+ higher lows AND lower highs converging",
+            "duration": "10-20 candles",
+            "timeframe": "1h"
+          },
+          {
+            "id": "e2",
+            "indicator": "breakout",
+            "definition": "Close beyond wedge apex resistance or support"
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_divergence",
+            "bullish": "RSI makes higher low while price makes lower low",
+            "bearish": "RSI makes lower high while price makes higher high"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_spike",
+            "comparison": ">",
+            "value": "baseline_volume * 1.5"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "wedge_extremum - (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.54,
+        "expected_rr": 2.0,
+        "trades_per_month": 6
+      },
+      "session_filter": "ALL",
+      "notes": "Structural trade with divergence confirmation. HIGH-PROBABILITY institutional setup."
+    },
+    {
+      "id": "S015",
+      "name": "Volume Climax Reversal",
+      "category": "B",
+      "type": "SHORT",
+      "edge_type": "reversal_exhaustion",
+      "timeframe_primary": "1m",
+      "timeframes": ["1m"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "volume_climax",
+            "definition": "Volume > MA_volume_30 * 2.5 to 3.5",
+            "threshold_min_mult": 2.5,
+            "threshold_max_mult": 3.5
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_overbought",
+            "timeframe": "1m",
+            "comparison": ">",
+            "value": 70
+          },
+          {
+            "id": "e3",
+            "indicator": "wick_rejection",
+            "definition": "Candle low 2-3% below high, close near high",
+            "wick_ratio": 0.02
+          },
+          {
+            "id": "e4",
+            "indicator": "MACD_roll",
+            "definition": "MACD line starting to roll over (signal not yet crossed)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "volume_spike_high + (ATR_14_1m * 1.9)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.5"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.55,
+        "expected_rr": 2.5,
+        "trades_per_month": 8,
+        "max_dd_acceptable": 0.06
+      },
+      "session_filter": "ALL",
+      "notes": "HIGHEST-WIN-RATE setup. Institutional stop-hunt + reversal pattern. Requires precise timing."
+    },
+    {
+      "id": "S017",
+      "name": "Weekly Level Break",
+      "category": "B",
+      "type": "LONG_or_SHORT",
+      "edge_type": "institutional_level_break",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "Weekly"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "weekly_level",
+            "definition": "Break of weekly chart high or low",
+            "lookback_weeks": 52
+          },
+          {
+            "id": "e2",
+            "indicator": "volume_confirm",
+            "comparison": ">",
+            "value": "weekly_avg_volume * 1.2"
+          },
+          {
+            "id": "e3",
+            "indicator": "no_false_break",
+            "definition": "Candle close beyond level (not just wick touch)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "weekly_level - (ATR_14_1h * 2.2)",
+        "note": "Large stop for weekly breaks"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.8"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 2.0,
+        "expected_win_rate": 0.60,
+        "expected_rr": 2.8,
+        "trades_per_month": 2,
+        "max_dd_acceptable": 0.10
+      },
+      "session_filter": "ALL",
+      "notes": "INSTITUTIONAL EDGE. Weekly level breaks are high-probability with large moves. Rare setups."
+    },
+    {
+      "id": "S019",
+      "name": "VWAP Pullback Long",
+      "category": "C",
+      "type": "LONG",
+      "edge_type": "mean_reversion_support",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "vwap_pullback",
+            "definition": "Price pullback to VWAP within -1% range"
+          },
+          {
+            "id": "e2",
+            "indicator": "bullish_candle",
+            "definition": "Close > Open, Body > 60% of range"
+          },
+          {
+            "id": "e3",
+            "indicator": "volume_spike",
+            "comparison": ">",
+            "value": "SMA_volume_20 * 1.4"
+          },
+          {
+            "id": "e4",
+            "indicator": "RSI_14_1h",
+            "comparison": ">",
+            "value": 45,
+            "comparison_upper": "<",
+            "value_upper": 65
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "VWAP - (ATR_14_1h * 1.7)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.52,
+        "expected_rr": 1.8,
+        "trades_per_month": 10
+      },
+      "session_filter": "Trend days (avoid flat/choppy)",
+      "notes": "High-probability pullback into dynamic support (VWAP). Institutional entry point."
+    },
+    {
+      "id": "S021",
+      "name": "Support Retest",
+      "category": "C",
+      "type": "LONG",
+      "edge_type": "institutional_support_bounce",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "support_level",
+            "definition": "Recent swing low or horizontal support",
+            "lookback": 20
+          },
+          {
+            "id": "e2",
+            "indicator": "retest",
+            "definition": "Price touches support ±0.3%",
+            "buffer_pct": 0.3
+          },
+          {
+            "id": "e3",
+            "indicator": "rejection_candle",
+            "definition": "Long wick below support, close > mid-candle",
+            "volume": "> (down move volume) for volume absorption"
+          },
+          {
+            "id": "e4",
+            "indicator": "no_break",
+            "definition": "No candle closes permanently below support"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "support_level - (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.56,
+        "expected_rr": 2.0,
+        "trades_per_month": 12,
+        "max_dd_acceptable": 0.07
+      },
+      "session_filter": "ALL",
+      "notes": "INSTITUTIONAL FAVORITE. Support retest with volume absorption = high-probability range continuation."
+    },
+    {
+      "id": "S023",
+      "name": "EMA Pullback Engulfing",
+      "category": "C",
+      "type": "LONG",
+      "edge_type": "trend_pullback_confirmation",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "pullback_to_EMA",
+            "definition": "Price pullback to 21 or 50 EMA within 1-2 candles"
+          },
+          {
+            "id": "e2",
+            "indicator": "bullish_engulfing",
+            "definition": "Current candle body completely contains previous candle body"
+          },
+          {
+            "id": "e3",
+            "indicator": "trend_intact",
+            "timeframe": "4h",
+            "definition": "21 EMA > 50 EMA > 200 EMA"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_confirm",
+            "definition": "Volume(engulfing) > Volume(previous) × 1.3"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "engulfing_candle_low - (ATR_14_1h * 1.6)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.54,
+        "expected_rr": 2.0,
+        "trades_per_month": 9
+      },
+      "session_filter": "ALL",
+      "notes": "Pattern confirmation with trend alignment. Engulfing candle adds confidence to pullback entry."
+    },
+    {
+      "id": "S024",
+      "name": "Order Block Entry",
+      "category": "C",
+      "type": "LONG",
+      "edge_type": "institutional_structure_retest",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "order_block",
+            "definition": "Strong 1h candle with high volume (Volume > 1.5x average)",
+            "lookback": 20
+          },
+          {
+            "id": "e2",
+            "indicator": "move_away",
+            "definition": "Price moves away from OB zone 5-10 candles"
+          },
+          {
+            "id": "e3",
+            "indicator": "retest_OB",
+            "definition": "Price retests OB zone with bullish reaction"
+          },
+          {
+            "id": "e4",
+            "indicator": "structure_intact",
+            "definition": "No candle closes beyond opposite side of OB"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "OB_low - (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.58,
+        "expected_rr": 2.0,
+        "trades_per_month": 8,
+        "max_dd_acceptable": 0.06
+      },
+      "session_filter": "ALL",
+      "notes": "HIGHEST-WIN-RATE pullback setup. Institutional market structure play with clear support zone."
+    },
+    {
+      "id": "S026",
+      "name": "RSI Reset Pullback",
+      "category": "C",
+      "type": "LONG",
+      "edge_type": "oscillator_reset_continuation",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "RSI_reset",
+            "definition": "RSI(14) crosses 50 from above (momentum loss + reset)"
+          },
+          {
+            "id": "e2",
+            "indicator": "trend_continuation",
+            "timeframe": "4h",
+            "definition": "21 EMA > 50 EMA > 200 EMA (uptrend),  no breakdown"
+          },
+          {
+            "id": "e3",
+            "indicator": "bullish_candle",
+            "definition": "Next candle after RSI reset close > open"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume",
+            "definition": "Volume > SMA_volume_20"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.6)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.50,
+        "expected_rr": 1.8,
+        "trades_per_month": 10
+      },
+      "session_filter": "ALL",
+      "notes": "Momentum reset + trend continuation. RSI 50 level is natural pullback zone."
+    },
+    {
+      "id": "S027",
+      "name": "RSI Divergence Reversal",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "momentum_divergence_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "downtrend",
+            "definition": "3+ consecutive lower closes or lower highs"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_bullish_divergence",
+            "definition": "RSI makes higher low while price makes lower low",
+            "interpretation": "Divergence signals weakening downside momentum"
+          },
+          {
+            "id": "e3",
+            "indicator": "RSI_low",
+            "comparison": "<",
+            "value": 50
+          },
+          {
+            "id": "e4",
+            "indicator": "confirmation_candle",
+            "definition": "Bullish candle after divergence (close > open, body > 50%)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "downtrend_low + (ATR_14_1h * 2.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.5"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.52,
+        "expected_rr": 2.5,
+        "trades_per_month": 6,
+        "max_dd_acceptable": 0.08
+      },
+      "session_filter": "ALL",
+      "notes": "Divergence signals momentum exhaustion. HIGH-EDGE reversal setup."
+    },
+    {
+      "id": "S028",
+      "name": "Double Top Breakdown",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "resistance_breakdown_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "double_top",
+            "definition": "2 highs within 0.5% of each other",
+            "distance_pct": 0.5,
+            "bars_between": "5-15"
+          },
+          {
+            "id": "e2",
+            "indicator": "pullback",
+            "definition": "Price pullback to midpoint between tops"
+          },
+          {
+            "id": "e3",
+            "indicator": "breakdown",
+            "definition": "Close below midpoint + no closing back above"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume",
+            "definition": "Volume on breakdown > volume at formation"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "double_top_high + (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.54,
+        "expected_rr": 2.0,
+        "trades_per_month": 5
+      },
+      "session_filter": "ALL",
+      "notes": "Classic reversal pattern. Resistance tested twice = likely rejection third time."
+    },
+    {
+      "id": "S029",
+      "name": "Double Bottom Breakout",
+      "category": "D",
+      "type": "LONG",
+      "edge_type": "support_breakout_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "double_bottom",
+            "definition": "2 lows within 0.5% of each other",
+            "distance_pct": 0.5,
+            "bars_between": "5-15"
+          },
+          {
+            "id": "e2",
+            "indicator": "bounce_to_midpoint",
+            "definition": "Price bounces to midpoint between bottoms"
+          },
+          {
+            "id": "e3",
+            "indicator": "breakout",
+            "definition": "Close above midpoint + sustained above"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume",
+            "definition": "Volume on breakout > volume at formation"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "double_bottom_low - (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.54,
+        "expected_rr": 2.0,
+        "trades_per_month": 5
+      },
+      "session_filter": "ALL",
+      "notes": "Mirror of S028. Support tested twice = likely support holds third time."
+    },
+    {
+      "id": "S030",
+      "name": "Exhaustion Candle Reversal",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "exhaustion_rejection_reversal",
+      "timeframe_primary": "5m",
+      "timeframes": ["5m", "1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "gap_down_then_spike",
+            "definition": "Gap down open then spike up 2-3% same candle"
+          },
+          {
+            "id": "e2",
+            "indicator": "wick_rejection",
+            "definition": "Large upper wick (2-3x lower wick size)",
+            "wick_ratio": 2.0,
+            "comparison": ">"
+          },
+          {
+            "id": "e3",
+            "indicator": "close_near_low",
+            "definition": "Close in lower half of candle"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_high",
+            "comparison": ">",
+            "value": "baseline * 1.8"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "exhaustion_candle_high + (ATR_14_5m * 1.9)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.57,
+        "expected_rr": 2.0,
+        "trades_per_month": 8,
+        "max_dd_acceptable": 0.07
+      },
+      "session_filter": "ALL",
+      "notes": "HIGHEST-WIN-RATE reversal. Stop-hunt pattern with exhaustion = automatic reversal."
+    },
+    {
+      "id": "S031",
+      "name": "Parabolic Reversal",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "parabolic_tops_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "parabolic_move",
+            "definition": "Accelerating uptrend: each candle high > previous high, closing gaps accelerate",
+            "duration": "5-15 candles",
+            "acceleration": "visible"
+          },
+          {
+            "id": "e2",
+            "indicator": "RSI_70",
+            "comparison": ">",
+            "value": 70
+          },
+          {
+            "id": "e3",
+            "indicator": "volume_declining",
+            "definition": "Volume decreases as price rises (momentum weakening)"
+          },
+          {
+            "id": "e4",
+            "indicator": "reversal_candle",
+            "definition": "First lower close or doji after parabolic move"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "parabolic_high + (ATR_14_1h * 2.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 2.0,
+        "trades_per_month": 4
+      },
+      "session_filter": "ALL",
+      "notes": "Parabolic moves eventually collapse. Declining volume = exhaustion signal."
+    },
+    {
+      "id": "S032",
+      "name": "MACD Flip Reversal",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "momentum_flip_mechanical",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "MACD_uptrend",
+            "definition": "MACD line > signal line, histogram positive"
+          },
+          {
+            "id": "e2",
+            "indicator": "MACD_flip",
+            "definition": "MACD line crosses below signal line (mechanical flip)"
+          },
+          {
+            "id": "e3",
+            "indicator": "price_confirmation",
+            "definition": "Next candle close < open (bearish)"
+          },
+          {
+            "id": "e4",
+            "indicator": "RSI_divergence",
+            "definition": "Optional: RSI also rolling over or divergence present"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.48,
+        "expected_rr": 1.8,
+        "trades_per_month": 10,
+        "max_dd_acceptable": 0.08
+      },
+      "session_filter": "ALL",
+      "notes": "Mechanical indicator flip. Works but lower edge than divergence-based entries."
+    },
+    {
+      "id": "S033",
+      "name": "Trendline Break Reversal",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "structural_trendline_break",
+      "timeframe_primary": "4h",
+      "timeframes": ["4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "uptrend_trendline",
+            "definition": "Uptrend trendline connecting 2+ lower swing lows",
+            "duration": "4+ weeks minimum"
+          },
+          {
+            "id": "e2",
+            "indicator": "trendline_break",
+            "definition": "Close below trendline (not just wick touch)"
+          },
+          {
+            "id": "e3",
+            "indicator": "no_recapture",
+            "definition": "Next candle(s) don't recapture above trendline"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume",
+            "definition": "Volume on break > typical volume"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "trendline_level + (ATR_14_4h * 2.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.55,
+        "expected_rr": 2.0,
+        "trades_per_month": 3,
+        "max_dd_acceptable": 0.08
+      },
+      "session_filter": "ALL",
+      "notes": "INSTITUTIONAL EDGE. Long-term trendline break = major reversal signal. Rare, high-confidence."
+    },
+    {
+      "id": "S034",
+      "name": "Bollinger Squeeze Breakout",
+      "category": "E",
+      "type": "LONG_or_SHORT",
+      "edge_type": "volatility_compression_expansion",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "bollinger_squeeze",
+            "definition": "BB width = (Upper - Lower) / price < 0.8%",
+            "threshold_pct": 0.008
+          },
+          {
+            "id": "e2",
+            "indicator": "compression_duration",
+            "definition": "Squeeze lasting 3-10 candles"
+          },
+          {
+            "id": "e3",
+            "indicator": "breakout_candle",
+            "definition": "Close beyond BB band (upper or lower) + volume > 1.5x"
+          },
+          {
+            "id": "e4",
+            "indicator": "direction_confirmation",
+            "definition": "Next candle continues beyond band"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "compression_extremum - (ATR_14_1h * 2.2)",
+        "note": "Place on opposite side of breakout"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "trailing_stop": {
+        "trigger": "TP1_hit",
+        "trail_formula": "ATR_14_1h * 1.5"
+      },
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.53,
+        "expected_rr": 2.0,
+        "trades_per_month": 6,
+        "max_dd_acceptable": 0.07
+      },
+      "session_filter": "ALL",
+      "notes": "Volatility expansion play. Lower frequency but consistent edge when squeeze breaks."
+    },
+    {
+      "id": "S035",
+      "name": "Low ATR Expansion",
+      "category": "E",
+      "type": "LONG_or_SHORT",
+      "edge_type": "volatility_mean_reversion_expansion",
+      "timeframe_primary": "4h",
+      "timeframes": ["4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "ATR_low",
+            "definition": "ATR_14_4h at historical low (52-week low or percentile < 20)",
+            "percentile": 0.20
+          },
+          {
+            "id": "e2",
+            "indicator": "compression_confirmed",
+            "definition": "Multiple lower highs AND higher lows converging"
+          },
+          {
+            "id": "e3",
+            "indicator": "expansion_candle",
+            "definition": "Candle with 2× normal range (high - low) > 2 * ATR_avg"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_confirm",
+            "definition": "Volume on expansion > 1.8× average"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "compression_low - (ATR_14_4h * 2.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.5"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.51,
+        "expected_rr": 2.5,
+        "trades_per_month": 4,
+        "max_dd_acceptable": 0.07
+      },
+      "session_filter": "ALL",
+      "notes": "Mean reversion of volatility. After low ATR, expansion is highly likely."
+    },
+    {
+      "id": "S036",
+      "name": "Multi-Timeframe Compression",
+      "category": "E",
+      "type": "LONG_or_SHORT",
+      "edge_type": "multi_tf_volatility_compression",
+      "timeframe_primary": "1h",
+      "timeframes": ["15m", "1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "15m_compression",
+            "definition": "15m ATR at low levels"
+          },
+          {
+            "id": "e2",
+            "indicator": "1h_compression",
+            "definition": "1h BB width < 1%"
+          },
+          {
+            "id": "e3",
+            "indicator": "4h_EMA_tight",
+            "definition": "All EMAs within 1% spread on 4h"
+          },
+          {
+            "id": "e4",
+            "indicator": "multi_timeframe_squeeze",
+            "definition": "All 3 timeframes showing compression signals"
+          },
+          {
+            "id": "e5",
+            "indicator": "breakout",
+            "definition": "15m candle closes beyond compression on 1h/15m"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "compression_extremum - (ATR_14_1h * 2.2)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.5"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.56,
+        "expected_rr": 2.5,
+        "trades_per_month": 3,
+        "max_dd_acceptable": 0.06
+      },
+      "session_filter": "ALL",
+      "notes": "HIGHEST-EDGE squeeze. Multi-TF alignment confirms institutional setup."
+    },
+    {
+      "id": "S037",
+      "name": "Inside Bar Breakout",
+      "category": "E",
+      "type": "LONG_or_SHORT",
+      "edge_type": "pattern_breakout",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "inside_bar",
+            "definition": "Current candle high < previous candle high AND current low > previous low",
+            "duration": "1 candle"
+          },
+          {
+            "id": "e2",
+            "indicator": "compression_signal",
+            "definition": "Inside bar represents range compression"
+          },
+          {
+            "id": "e3",
+            "indicator": "breakout",
+            "definition": "Next candle close outside previous range (upper or lower)"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume",
+            "definition": "Volume on breakout > volume on inside bar"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "inside_bar_extremum + buffer - (ATR_14_1h * 2.0)",
+        "buffer_pct": -0.2
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.52,
+        "expected_rr": 2.0,
+        "trades_per_month": 12,
+        "max_dd_acceptable": 0.08
+      },
+      "session_filter": "ALL",
+      "notes": "High-frequency pattern. Simple rule: compression = breakout coming."
+    },
+    {
+      "id": "S038",
+      "name": "Triangle Break Breakout",
+      "category": "E",
+      "type": "LONG_or_SHORT",
+      "edge_type": "structural_triangle_breakout",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "triangle_structure",
+            "definition": "Lower highs AND higher lows converging on 1h over 10-20 candles"
+          },
+          {
+            "id": "e2",
+            "indicator": "volume_declining",
+            "definition": "Volume decreasing into triangle apex"
+          },
+          {
+            "id": "e3",
+            "indicator": "breakout_candle",
+            "definition": "Close beyond triangle boundary + next candle confirms"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_spike",
+            "definition": "Volume on breakout > 1.5× average"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "triangle_extremum - (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.5"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.54,
+        "expected_rr": 2.5,
+        "trades_per_month": 5,
+        "max_dd_acceptable": 0.07
+      },
+      "session_filter": "ALL",
+      "notes": "Structural pattern with predictable breakout. Declining volume = volatility buildup."
+    },
+    {
+      "id": "S039",
+      "name": "Fakeout Expansion Reversal",
+      "category": "E",
+      "type": "SHORT",
+      "edge_type": "fakeout_reversal_expansion",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "false_breakout",
+            "definition": "Close beyond compression boundary on 1h then reversal next 1-2 candles"
+          },
+          {
+            "id": "e2",
+            "indicator": "volume_spike",
+            "definition": "Volume spike on false breakout > 2× average"
+          },
+          {
+            "id": "e3",
+            "indicator": "reversal_candle",
+            "definition": "Strong reversal candle back inside compression zone"
+          },
+          {
+            "id": "e4",
+            "indicator": "opposite_direction",
+            "definition": "Entry on bounce back into range (contrarian)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "false_breakout_extreme + (ATR_14_1h * 2.0)",
+        "note": "Place outside opposite breakout direction"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.5"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.55,
+        "expected_rr": 2.5,
+        "trades_per_month": 5,
+        "max_dd_acceptable": 0.07
+      },
+      "session_filter": "ALL",
+      "notes": "Contrarian / institutional stop-hunt play. High-volume false breakout = trap."
+    },
+    {
+      "id": "S046",
+      "name": "Equal High Sweep Reversal",
+      "category": "G",
+      "type": "LONG",
+      "edge_type": "institutional_sweep_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "equal_high",
+            "definition": "Price touched same high level exactly 2× within 20 candles",
+            "distance_pct": 0.1,
+            "lookback": 20
+          },
+          {
+            "id": "e2",
+            "indicator": "pullback",
+            "definition": "Pullback from first high 10-15% move"
+          },
+          {
+            "id": "e3",
+            "indicator": "equal_high_retest",
+            "definition": "Rally to equal high again (second test)"
+          },
+          {
+            "id": "e4",
+            "indicator": "spike_and_wick",
+            "definition": "Spike 0.2-0.5% beyond equal high then large wick rejection"
+          },
+          {
+            "id": "e5",
+            "indicator": "reversal_confirmation",
+            "definition": "Strong reversal candle with volume (entry = close of reversal candle)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "spike_extreme + (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "pullback_low from first high"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.60,
+        "expected_rr": 2.0,
+        "trades_per_month": 4,
+        "max_dd_acceptable": 0.05
+      },
+      "session_filter": "ALL",
+      "notes": "INSTITUTIONAL FAVORITE. Sweep to exact level then reversal = highest-confidence setup."
+    },
+    {
+      "id": "S047",
+      "name": "Equal Low Sweep Reversal",
+      "category": "G",
+      "type": "SHORT",
+      "edge_type": "institutional_sweep_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "equal_low",
+            "definition": "Price touched same low level exactly 2× within 20 candles",
+            "distance_pct": 0.1,
+            "lookback": 20
+          },
+          {
+            "id": "e2",
+            "indicator": "bounce",
+            "definition": "Bounce from first low 10-15% move"
+          },
+          {
+            "id": "e3",
+            "indicator": "equal_low_retest",
+            "definition": "Decline to equal low again (second test)"
+          },
+          {
+            "id": "e4",
+            "indicator": "spike_and_wick_down",
+            "definition": "Spike 0.2-0.5% below equal low then large wick rejection upward"
+          },
+          {
+            "id": "e5",
+            "indicator": "reversal_confirmation",
+            "definition": "Strong reversal candle downward with volume"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "spike_extreme - (ATR_14_1h * 2.0)",
+        "note": "Place below downside spike"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "bounce_high from first low"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.60,
+        "expected_rr": 2.0,
+        "trades_per_month": 4,
+        "max_dd_acceptable": 0.05
+      },
+      "session_filter": "ALL",
+      "notes": "Mirror of S046. Downside sweep = SHORT setup."
+    },
+    {
+      "id": "S048",
+      "name": "Stop Hunt Reversal",
+      "category": "G",
+      "type": "SHORT",
+      "edge_type": "stop_hunt_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "trend_established",
+            "definition": "3+ candles trending higher (higher closes)",
+            "candle_count": 3
+          },
+          {
+            "id": "e2",
+            "indicator": "ADX_trending",
+            "timeframe": "4h",
+            "comparison": ">",
+            "value": 20
+          },
+          {
+            "id": "e3",
+            "indicator": "spike_beyond_trend",
+            "definition": "Sudden spike 2-3% beyond recent trend high",
+            "spike_pct": 0.02
+          },
+          {
+            "id": "e4",
+            "indicator": "wick_rejection",
+            "definition": "Long wick below spike high + small body (stop-hunt pattern)"
+          },
+          {
+            "id": "e5",
+            "indicator": "entry_reversal",
+            "definition": "Next candle close < open (entry after reversal confirmation)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "spike_high + (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price - (stop_loss - entry_price) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price - (stop_loss - entry_price) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.62,
+        "expected_rr": 2.0,
+        "trades_per_month": 6,
+        "max_dd_acceptable": 0.05
+      },
+      "session_filter": "ALL",
+      "notes": "HIGHEST-WIN-RATE setup. Institutional stop-hunt = automatic reversal pattern."
+    },
+    {
+      "id": "S049",
+      "name": "Liquidity Void Fill",
+      "category": "G",
+      "type": "LONG_or_SHORT",
+      "edge_type": "institutional_liquidity_dynamics",
+      "timeframe_primary": "4h",
+      "timeframes": ["4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "liquidity_void",
+            "definition": "Gap in volume profile: area with very low trading volume on 50-100 candle lookback",
+            "method": "custom volume profile analysis"
+          },
+          {
+            "id": "e2",
+            "indicator": "void_direction",
+            "definition": "Void location above or below price determines direction"
+          },
+          {
+            "id": "e3",
+            "indicator": "trend_toward_void",
+            "definition": "Price trends toward void level"
+          },
+          {
+            "id": "e4",
+            "indicator": "volume_absorption",
+            "definition": "Volume increasing as price approaches void"
+          },
+          {
+            "id": "e5",
+            "indicator": "void_penetration",
+            "definition": "Close beyond void boundary"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "void_extreme - (ATR_14_4h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.0"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.54,
+        "expected_rr": 1.8,
+        "trades_per_month": 3,
+        "max_dd_acceptable": 0.08
+      },
+      "session_filter": "ALL",
+      "notes": "REQUIRES VOLUME PROFILE DATA. Institutional positioning drives liquidity voids. Defer to Phase 5 if unavailable."
+    },
+    {
+      "id": "S050",
+      "name": "BOS + Liquidity Grab",
+      "category": "G",
+      "type": "LONG_or_SHORT",
+      "edge_type": "institutional_bos_grab",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h", "4h"],
+      "entry": {
+        "conditions": [
+          {
+            "id": "e1",
+            "indicator": "swing_structure",
+            "definition": "Easily identifiable swing high or swing low on 1h"
+          },
+          {
+            "id": "e2",
+            "indicator": "break_of_structure",
+            "definition": "BOS: close beyond swing point (not just wick)"
+          },
+          {
+            "id": "e3",
+            "indicator": "no_immediate_recapture",
+            "definition": "No candle post-BOS closes back beyond BOS level"
+          },
+          {
+            "id": "e4",
+            "indicator": "liquidity_spike",
+            "definition": "Immediate spike 0.5-1.5% opposite direction (grab)",
+            "spike_size": "0.5-1.5%"
+          },
+          {
+            "id": "e5",
+            "indicator": "reversal_setup",
+            "definition": "Reversal back in BOS direction (entry after grab + reversal)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "grab_extreme - (ATR_14_1h * 2.2)",
+        "note": "Place beyond grab extreme"
+      },
+      "take_profit": [
+        {
+          "level_num": 1,
+          "formula": "entry_price + (entry_price - stop_loss) * 1.0"
+        },
+        {
+          "level_num": 2,
+          "formula": "entry_price + (entry_price - stop_loss) * 2.2"
+        }
+      ],
+      "risk_parameters": {
+        "risk_per_trade_pct": 1.5,
+        "expected_win_rate": 0.62,
+        "expected_rr": 2.2,
+        "trades_per_month": 5,
+        "max_dd_acceptable": 0.05
+      },
+      "session_filter": "ALL",
+      "notes": "INSTITUTIONAL EDGE. BOS + liquidity spike = stop-hunt + grab + reversal (highest probability)."
+    }
+  ]
+}
+

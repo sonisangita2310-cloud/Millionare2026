@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-04-14",
+    "description": "Scenario B: Breakeven / Volume Confirm Configuration"
+  },
+  "scenario": {
+    "name": "Scenario B - Breakeven / Volume Confirm",
+    "category": "B",
+    "description": "Conservative Ethereum scenario with volume confirmation and breakeven management",
+    "assets": [
+      {
+        "symbol": "ETH",
+        "exchange": "coinbase",
+        "target_allocation": 0.4
+      },
+      {
+        "symbol": "BTC",
+        "exchange": "coinbase",
+        "target_allocation": 0.35
+      }
+    ],
+    "strategies": {
+      "momentum": {
+        "enabled": true,
+        "weight": 0.3,
+        "parameters": {
+          "lookback_period": 25,
+          "rsi_threshold": 65,
+          "minimum_volume": 2000000
+        }
+      },
+      "mean_reversion": {
+        "enabled": true,
+        "weight": 0.4,
+        "parameters": {
+          "lookback_period": 20,
+          "z_score_threshold": 1.5
+        }
+      },
+      "arbitrage": {
+        "enabled": true,
+        "weight": 0.3,
+        "parameters": {
+          "min_spread_pct": 0.3
+        }
+      }
+    },
+    "constraints": {
+      "max_daily_trades": 15,
+      "min_volume_threshold": 2000000,
+      "max_position_size": 0.25,
+      "stop_loss_pct": 1.5,
+      "take_profit_pct": 3.5
+    },
+    "risk_management": {
+      "max_daily_loss_pct": 3.0,
+      "max_position_loss_pct": 1.5,
+      "var_confidence": 0.95,
+      "stress_test_scenarios": [-20, -10, 0, 10, 20]
+    }
+  }
+}

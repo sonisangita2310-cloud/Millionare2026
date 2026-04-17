@@ -1,0 +1,531 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "phase": "Simplified for Real Data Backtesting",
+    "date": "2026-04-14",
+    "total_scenarios": 10,
+    "note": "Simplified entry logic using basic indicators for initial validation"
+  },
+  "scenarios": [
+    {
+      "id": "S_EMA_12_21_CROSS_LONG",
+      "name": "EMA 12/21 Bullish Crossover (1h)",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "EMA_12_1h > EMA_21_1h",
+            "description": "12-period EMA above 21-period EMA"
+          },
+          {
+            "id": "e2",
+            "rule": "RSI_14_1h > 50",
+            "description": "RSI above 50 (positive momentum)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.5)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price + (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "EMA_12_1h < EMA_21_1h",
+          "description": "EMA bearish crossover - exit"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.55,
+        "expected_rr": 2.5,
+        "expected_dd": 0.08,
+        "trades_per_month": 8
+      }
+    },
+    {
+      "id": "S_EMA_12_21_CROSS_SHORT",
+      "name": "EMA 12/21 Bearish Crossover (1h)",
+      "category": "A",
+      "type": "SHORT",
+      "edge_type": "trend_reversal",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "EMA_12_1h < EMA_21_1h",
+            "description": "12-period EMA below 21-period EMA"
+          },
+          {
+            "id": "e2",
+            "rule": "RSI_14_1h < 50",
+            "description": "RSI below 50 (negative momentum)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 1.5)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price - (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price - (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "EMA_12_1h > EMA_21_1h",
+          "description": "EMA bullish crossover - exit short"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.52,
+        "expected_rr": 2.3,
+        "expected_dd": 0.08,
+        "trades_per_month": 8
+      }
+    },
+    {
+      "id": "S_RSI_OVERSOLD_LONG",
+      "name": "RSI Oversold Bounce (1h)",
+      "category": "C",
+      "type": "LONG",
+      "edge_type": "mean_reversion",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "RSI_14_1h < 30",
+            "description": "RSI oversold"
+          },
+          {
+            "id": "e2",
+            "rule": "close_1h > EMA_50_1h",
+            "description": "Price above 50 EMA for trend filter"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price + (ATR_14_1h * 1.5)",
+          "size_pct": 60
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price + (ATR_14_1h * 3.0)",
+          "size_pct": 40
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "RSI_14_1h > 70",
+          "description": "RSI overbought - exit"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.58,
+        "expected_rr": 2.0,
+        "expected_dd": 0.06,
+        "trades_per_month": 6
+      }
+    },
+    {
+      "id": "S_RSI_OVERBOUGHT_SHORT",
+      "name": "RSI Overbought Pullback (1h)",
+      "category": "C",
+      "type": "SHORT",
+      "edge_type": "mean_reversion",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "RSI_14_1h > 70",
+            "description": "RSI overbought"
+          },
+          {
+            "id": "e2",
+            "rule": "close_1h < EMA_50_1h",
+            "description": "Price below 50 EMA for trend filter"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 2.0)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price - (ATR_14_1h * 1.5)",
+          "size_pct": 60
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price - (ATR_14_1h * 3.0)",
+          "size_pct": 40
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "RSI_14_1h < 30",
+          "description": "RSI oversold - exit short"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.56,
+        "expected_rr": 1.8,
+        "expected_dd": 0.07,
+        "trades_per_month": 6
+      }
+    },
+    {
+      "id": "S_BB_BREAKOUT_LONG",
+      "name": "Bollinger Band Upper Breakout (1h)",
+      "category": "B",
+      "type": "LONG",
+      "edge_type": "volatility_expansion",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "close_1h > BB_UPPER_1h",
+            "description": "Price breaks above Bollinger Band upper"
+          },
+          {
+            "id": "e2",
+            "rule": "ATR_14_1h > SMA_ATR_20_1h",
+            "description": "ATR expanding (increasing volatility)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price + (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "close_1h < BB_MIDDLE_1h",
+          "description": "Price closes below Bollinger Band middle"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.54,
+        "expected_rr": 2.2,
+        "expected_dd": 0.09,
+        "trades_per_month": 5
+      }
+    },
+    {
+      "id": "S_BB_BREAKOUT_SHORT",
+      "name": "Bollinger Band Lower Breakout (1h)",
+      "category": "B",
+      "type": "SHORT",
+      "edge_type": "volatility_expansion",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "close_1h < BB_LOWER_1h",
+            "description": "Price breaks below Bollinger Band lower"
+          },
+          {
+            "id": "e2",
+            "rule": "ATR_14_1h > SMA_ATR_20_1h",
+            "description": "ATR expanding (increasing volatility)"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 1.8)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price - (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price - (ATR_14_1h * 4.0)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "close_1h > BB_MIDDLE_1h",
+          "description": "Price closes above Bollinger Band middle"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.51,
+        "expected_rr": 2.0,
+        "expected_dd": 0.09,
+        "trades_per_month": 5
+      }
+    },
+    {
+      "id": "S_MACD_CROSS_LONG",
+      "name": "MACD Bullish Crossover (1h)",
+      "category": "D",
+      "type": "LONG",
+      "edge_type": "momentum_divergence",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "MACD_1h > SIGNAL_1h",
+            "description": "MACD above signal line"
+          },
+          {
+            "id": "e2",
+            "rule": "HISTOGRAM_1h > 0",
+            "description": "MACD histogram positive"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price - (ATR_14_1h * 1.5)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price + (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price + (ATR_14_1h * 3.5)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "MACD_1h < SIGNAL_1h",
+          "description": "MACD crosses below signal - exit"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.53,
+        "expected_rr": 2.1,
+        "expected_dd": 0.07,
+        "trades_per_month": 7
+      }
+    },
+    {
+      "id": "S_MACD_CROSS_SHORT",
+      "name": "MACD Bearish Crossover (1h)",
+      "category": "D",
+      "type": "SHORT",
+      "edge_type": "momentum_divergence",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "MACD_1h < SIGNAL_1h",
+            "description": "MACD below signal line"
+          },
+          {
+            "id": "e2",
+            "rule": "HISTOGRAM_1h < 0",
+            "description": "MACD histogram negative"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "entry_price + (ATR_14_1h * 1.5)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price - (ATR_14_1h * 2.0)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price - (ATR_14_1h * 3.5)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "MACD_1h > SIGNAL_1h",
+          "description": "MACD crosses above signal - exit"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.50,
+        "expected_rr": 1.9,
+        "expected_dd": 0.08,
+        "trades_per_month": 7
+      }
+    },
+    {
+      "id": "S_TREND_SMA_LONG",
+      "name": "SMA 50/200 Trend Following (1h)",
+      "category": "A",
+      "type": "LONG",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "SMA_50_1h > SMA_200_1h",
+            "description": "50 SMA above 200 SMA (uptrend)"
+          },
+          {
+            "id": "e2",
+            "rule": "close_1h > SMA_50_1h",
+            "description": "Price above 50 SMA"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "SMA_50_1h - (ATR_14_1h * 1.0)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price + (ATR_14_1h * 1.5)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price + (ATR_14_1h * 3.0)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "close_1h < SMA_50_1h",
+          "description": "Price closes below 50 SMA - exit"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.59,
+        "expected_rr": 2.4,
+        "expected_dd": 0.06,
+        "trades_per_month": 9
+      }
+    },
+    {
+      "id": "S_TREND_SMA_SHORT",
+      "name": "SMA 50/200 Downtrend Following (1h)",
+      "category": "A",
+      "type": "SHORT",
+      "edge_type": "trend_continuation",
+      "timeframe_primary": "1h",
+      "timeframes": ["1h"],
+      "entry": {
+        "logic": "AND",
+        "conditions": [
+          {
+            "id": "e1",
+            "rule": "SMA_50_1h < SMA_200_1h",
+            "description": "50 SMA below 200 SMA (downtrend)"
+          },
+          {
+            "id": "e2",
+            "rule": "close_1h < SMA_50_1h",
+            "description": "Price below 50 SMA"
+          }
+        ]
+      },
+      "stop_loss": {
+        "formula": "SMA_50_1h + (ATR_14_1h * 1.0)"
+      },
+      "take_profit": [
+        {
+          "id": "tp1",
+          "formula": "entry_price - (ATR_14_1h * 1.5)",
+          "size_pct": 50
+        },
+        {
+          "id": "tp2",
+          "formula": "entry_price - (ATR_14_1h * 3.0)",
+          "size_pct": 50
+        }
+      ],
+      "exit_conditions": [
+        {
+          "rule": "close_1h > SMA_50_1h",
+          "description": "Price closes above 50 SMA - exit short"
+        }
+      ],
+      "asset_pairs": ["BTC/USDT"],
+      "risk_parameters": {
+        "expected_win_rate": 0.57,
+        "expected_rr": 2.2,
+        "expected_dd": 0.07,
+        "trades_per_month": 9
+      }
+    }
+  ]
+}
