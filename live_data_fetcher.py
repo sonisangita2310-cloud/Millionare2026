@@ -211,18 +211,22 @@ class LiveDataFetcher:
         
         return total_seconds
     
-    def wait_for_next_candle(self, check_interval=30, verbose=False):
+    def wait_for_next_candle(self, check_interval=30, verbose=False, status_callback=None, status_callback_interval=300):
         """
         Wait for next 1-hour candle to close
         
         Checks every check_interval seconds to detect new candle formation
+        Optionally calls a status callback every status_callback_interval seconds
         
         Args:
             check_interval: How often to check for new candle (seconds)
             verbose: Print wait messages
+            status_callback: Optional callback function to call periodically (for LIVE STATUS)
+            status_callback_interval: How often to call status_callback (seconds, default 300=5min)
         """
         start_time = datetime.now()
         last_check_time = start_time
+        last_callback_time = start_time
         
         if verbose:
             seconds_until = self.get_time_until_next_candle(verbose=False)
@@ -231,6 +235,16 @@ class LiveDataFetcher:
         while True:
             # Sleep for check interval
             time.sleep(check_interval)
+            
+            now = datetime.now()
+            
+            # Check if it's time to call status callback (every 5 minutes)
+            if status_callback is not None and (now - last_callback_time).total_seconds() >= status_callback_interval:
+                try:
+                    status_callback()
+                except Exception:
+                    pass  # Silently ignore callback errors
+                last_callback_time = now
             
             # Try to fetch latest candles
             df = self.fetch_candles(verbose=False)
@@ -242,7 +256,6 @@ class LiveDataFetcher:
                 break
             
             # Show progress every 60 seconds
-            now = datetime.now()
             if (now - last_check_time).total_seconds() >= 60:
                 elapsed = (now - start_time).total_seconds()
                 remaining = self.get_time_until_next_candle(verbose=False)

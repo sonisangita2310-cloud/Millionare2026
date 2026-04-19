@@ -2,11 +2,11 @@
   "last_processed_candle_time": "2026-04-19 07:00:00",
   "open_trade": null,
   "equity": 500,
-  "candles_processed": 5,
+  "candles_processed": 8,
   "trades": [],
   "equity_curve": [
     500
   ],
   "rolling_checks": [],
-  "timestamp_saved": "2026-04-19T12:30:42.400350"
+  "timestamp_saved": "2026-04-19T13:16:26.673015"
 }

@@ -90,6 +90,8 @@ class LivePaperTradingSystem:
         self.max_equity = initial_capital  # Track max equity for drawdown calculation
         self.session_start_timestamp = datetime.now()  # When this session started
         self.journal_file = os.path.join(os.path.dirname(__file__), 'trading_journal.csv')
+        self.last_status_print = time.time()  # Track last LIVE STATUS print (every 5 min)
+        self.status_print_interval = 300  # 5 minutes
         
         # SESSION TRACKING & AUDIT LOGGING
         self.session_id = self._generate_session_id()  # Timestamp-based unique session ID
@@ -604,6 +606,48 @@ class LivePaperTradingSystem:
                       f"Equity: ${equity:,.2f} | Trades: {trades} | Candles: {self.candles_processed}")
             self.last_heartbeat = now
     
+    def _print_live_status(self, verbose, next_candle_seconds=None):
+        """Print clean LIVE STATUS display every 5 minutes (visibility-only)"""
+        now = time.time()
+        if now - self.last_status_print < self.status_print_interval:
+            return  # Not time yet
+        
+        if not verbose:
+            return
+        
+        # Get last signal and trade info
+        last_signal_str = "None"
+        last_trade_str = "None"
+        
+        if len(self.trades) > 0:
+            last_trade = self.trades[-1]
+            result = "WIN" if last_trade['winner'] == 1 else "LOSS"
+            pnl_str = f"{last_trade['p_l']:+.2f}"
+            last_trade_str = f"{last_trade['exit_type']} {result} (${pnl_str})"
+        
+        # Calculate position status
+        position_str = "NONE"
+        if self.position is not None:
+            position_str = f"OPEN @ ${self.position['entry_price']:.2f}"
+        
+        # Time to next candle
+        next_candle_str = "unknown"
+        if next_candle_seconds is not None:
+            mins = int(next_candle_seconds // 60)
+            secs = int(next_candle_seconds % 60)
+            next_candle_str = f"{mins}m {secs}s"
+        
+        # Print clean status
+        print(f"\n{'='*80}")
+        print(f"[LIVE STATUS] {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"{'='*80}")
+        print(f"  Equity: ${self.current_capital:>12,.2f}  |  Trades: {len(self.trades):>3}  |  Candles: {self.candles_processed:>4}")
+        print(f"  Position: {position_str:<30} |  Last Trade: {last_trade_str:<30}")
+        print(f"  Next Candle: {next_candle_str:<25} |  System Status: RUNNING")
+        print(f"{'='*80}\n")
+        
+        self.last_status_print = now
+    
     def run_live_trading(self, verbose=True):
         """
         Main live trading loop
@@ -656,6 +700,10 @@ class LivePaperTradingSystem:
             while True:
                 # Heartbeat
                 self._check_heartbeat(verbose)
+                
+                # LIVE STATUS - Clean display every 5 minutes (visibility-only)
+                wait_until_next = self.fetcher.get_time_until_next_candle(verbose=False)
+                self._print_live_status(verbose, next_candle_seconds=wait_until_next)
                 
                 # Fetch latest candles from Binance (with robust retry)
                 # Returns None if all retries fail - safe: skip cycle, don't trade
@@ -867,11 +915,18 @@ class LivePaperTradingSystem:
                 self._check_no_trades_alert()
                 
                 # Wait for next 1-hour candle to close
+                # Pass status callback so LIVE STATUS prints every 5 minutes during wait
                 wait_seconds = self.fetcher.get_time_until_next_candle(verbose=False)
                 if verbose:
                     print(f"[WAIT] Waiting {wait_seconds}s for next candle...\n")
                 
-                self.fetcher.wait_for_next_candle(check_interval=30, verbose=False)
+                # Call wait with status callback for LIVE STATUS display during wait period
+                self.fetcher.wait_for_next_candle(
+                    check_interval=30, 
+                    verbose=False,
+                    status_callback=lambda: self._print_live_status(verbose, wait_seconds),
+                    status_callback_interval=self.status_print_interval
+                )
         
         except KeyboardInterrupt:
             print(f"\n[BOT STOPPED] Interrupted by user")
